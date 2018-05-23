@@ -4,7 +4,7 @@
 
 """Simple Bot to retrieve FHICT Canvas announcements.
 # This program is dedicated to the public domain under the CC0 license.
-Run `cat api_key.txt | python bot.py` to run the bot.
+Run `python bot.py` to run the bot.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 
@@ -32,13 +32,18 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-def read_api_key():
-    with open("api-key.txt", "r") as api_key_file:
+def read_canvas_api_key():
+    with open("canvas-api-key.txt", "r") as api_key_file:
         api_key = api_key_file.readline().strip()
         return api_key
 
 
-announcement_reader = canvas.Canvas(fhict_canvas_url, read_api_key())
+def read_telegram_api_key():
+    with open("telegram-api-key.txt", "r") as api_key_file:
+        api_key = api_key_file.readline().strip()
+        return api_key
+
+announcement_reader = canvas.Canvas(fhict_canvas_url, read_canvas_api_key())
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -86,11 +91,10 @@ def error(bot, update, error):
 
 def main():
     """Run bot."""
-    line = sys.stdin.readline().strip()
-    api_key = line
+    telegram_api_key = read_telegram_api_key()
     # logger.info("API key:%s" % (api_key))
 
-    updater = Updater(api_key)
+    updater = Updater(telegram_api_key)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

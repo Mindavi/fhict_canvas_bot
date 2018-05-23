@@ -1,4 +1,5 @@
-api-key.txt
+.vscode/
+*api-key.txt
 __pycache__
 *.pyc
 data/

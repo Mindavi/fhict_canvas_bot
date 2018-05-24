@@ -13,12 +13,8 @@ bot.
 from telegram.ext import Updater, CommandHandler
 import logging
 import requests
-import json
-from pprint import pprint
-from operator import itemgetter
 import datetime
 from dateutil import parser
-import sys
 import canvas
 from html.parser import HTMLParser
 
@@ -62,13 +58,21 @@ def strip_tags(html):
     return s.get_data()
 
 def start(bot, update):
-    update.message.reply_text("Hi, I\'m a Canvas announcement bot!")
+    update.message.reply_text("Hi, I\'m a Canvas announcement bot!\n\
+            use /subscribe to subscribe to new announcements")
 
 
 def retrieve_announcements_after_yesterday():
     previous_day = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
     ok, announcements_or_error = announcement_reader.get_announcements_after(previous_day)
     return ok, announcements_or_error
+
+
+def publish_if_new_announcements(bot, job):
+    chat_id = job.context
+    logger.info("Publishing new info to user id: {}".format(chat_id))
+    # TODO: check for new announcements, save 'now' timestamp
+    bot.send_message(chat_id=chat_id, text="hello")
 
 
 def get(bot, update):
@@ -90,6 +94,26 @@ def get(bot, update):
     update.message.reply_text(text_to_send)
 
 
+def subscribe(bot, update, job_queue, chat_data):
+    chat_id = update.message.chat_id
+    time = 1
+    job = job_queue.run_once(publish_if_new_announcements, time, context=chat_id) # TODO: run every x minutes
+    chat_data["job"] = job
+    update.message.reply_text("You are now subscribed to new announcements!")
+    logger.info("New subscriber: {}".format(chat_id))
+
+
+def unsubscribe(update, context):
+    if 'job' not in context.chat_data:
+        update.message.reply_text("You were not subscribed, so unsubscribing isn't possible.")
+        return
+    job = context.chat_data["job"]
+    job.schedule_removal()
+    del context.chat_data["job"]
+
+    update.message.reply_text("Succesfully unsubscribed.")
+
+
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
@@ -108,6 +132,11 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("get", get))
+    dp.add_handler(CommandHandler("subscribe", subscribe,
+                                  pass_job_queue=True,
+                                  pass_chat_data=True))
+    dp.add_handler(CommandHandler("unsubscribe", unsubscribe,
+                                  pass_chat_data=True))
 
     # log all errors
     dp.add_error_handler(error)

@@ -67,20 +67,26 @@ def start(bot, update):
 
 def retrieve_announcements_after_yesterday():
     previous_day = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
-    announcements = announcement_reader.get_announcements_after(previous_day)
-    return announcements
+    ok, announcements_or_error = announcement_reader.get_announcements_after(previous_day)
+    return ok, announcements_or_error
 
 
 def get(bot, update):
     logger.info("Received request for data")
-    announcements = retrieve_announcements_after_yesterday()
-    text_to_send = "Recent announcements\n\n"
+    ok, announcements_or_error = retrieve_announcements_after_yesterday()
+    if not ok:
+        update.message.reply_text("error: {}".format(announcements_or_error))
+        return
+    announcements = announcements_or_error
+    announcement_texts = []
+    announcement_texts.append("Recent announcements\n")
     for announcement in announcements:
         title = announcement["title"]
         author = announcement["author"]["display_name"]
         post_time = announcement["posted_at"]
         message = strip_tags(announcement["message"])
-        text_to_send += "Title: {}\n\tAuthor: {}\n\tTime: {}\n\tMessage: {}\n\n".format(title, author, post_time, message)
+        announcement_texts.append("Title: {}\n\tAuthor: {}\n\tTime: {}\n\tMessage: {}\n".format(title, author, post_time, message))
+    text_to_send = '\n'.join(announcement_texts)
     update.message.reply_text(text_to_send)
 
 

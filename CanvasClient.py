@@ -7,8 +7,11 @@ def main():
     client = canvas.Canvas("https://fhict.instructure.com", read_api_key())
 
     previous_day = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=5)
-    announcements = client.get_announcements_after(previous_day)
-
+    ok, announcements_or_error = client.get_announcements_after(previous_day)
+    if not ok:
+        print("error: {}".format(announcements_or_error))
+        return
+    announcements = announcements_or_error
     for announcement in announcements:
         title = announcement["title"]
         author = announcement["author"]["display_name"]
@@ -19,7 +22,7 @@ def main():
 
 
 def read_api_key():
-    with open("api-key.txt", "r") as api_key_file:
+    with open("canvas-api-key.txt", "r") as api_key_file:
         api_key = api_key_file.readline().strip()
         return api_key
 

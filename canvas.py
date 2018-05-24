@@ -23,12 +23,16 @@ class Canvas:
         api_key = self.api_key
         headers = {"Authorization": "Bearer {}".format(api_key)}
         response = self.session.get(url, headers=headers, params=parameters)
+        if not response.ok:
+            return response.ok, response.text
         return response.ok, response.json()
+
 
     def get_active_courses(self):
         endpoint = "courses"
         ok, courses_or_error = self.request_data(endpoint, {"per_page": 100, "enrollment_state": "active"})
         return ok, courses_or_error
+
 
     def get_announcements_for_course(self, course_id):
         endpoint = "courses/{}/discussion_topics".format(course_id)

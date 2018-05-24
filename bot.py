@@ -96,6 +96,7 @@ def get_announcements_formatted(announcements):
         # post time is in UTC because canvas returns a timestamp in UTC
         # the telegram api doesn't seem to support retrieving a timezone for a user
         # the canvas api supports this, so that can be used to format this timezone
+        # a Course object contains timezone data, and announcements are tied to a course
         post_time = parser.parse(announcement["posted_at"]).ctime()
         message = strip_tags(announcement["message"])
         announcement_texts.append("Title: {}\n\tAuthor: {}\n\tTime (UTC): {}\n\tMessage: {}\n"

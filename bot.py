@@ -95,6 +95,10 @@ def get(bot, update):
 
 
 def subscribe(bot, update, job_queue, chat_data):
+    # for now this is pretty naive, it would be better to have a list of chat_ids and run a job globally instead of for every subscriber
+    # it should work though and that's more important
+    # it will break when too much people subscribe and the total time doing requests to canvas exceeds the time slot between runs of the jobs
+
     chat_id = update.message.chat_id
     time = 1
     job = job_queue.run_once(publish_if_new_announcements, time, context=chat_id) # TODO: run every x minutes

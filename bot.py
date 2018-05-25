@@ -22,7 +22,9 @@ fhict_canvas_url = "https://fhict.instructure.com"
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    level=logging.INFO,
+                    filename='bot.log',
+                    filemode='a')
 
 logger = logging.getLogger(__name__)
 
@@ -129,9 +131,9 @@ def subscribe(bot, update, job_queue, chat_data):
     second = 1
     minute = 60 * second
     time = 5 * minute
-    # to show all announcements after last_retrieved on first run
+    # shows older announcements on first subscribe if you subtract a timedelta
     # set to now to disable showing older announcements
-    last_retrieved = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2)
+    last_retrieved = datetime.datetime.now(datetime.timezone.utc) #- datetime.timedelta(days=2)
     job = job_queue.run_repeating(callback=publish_if_new_announcements,
             interval=time,
             first=0,

@@ -10,7 +10,6 @@ class Canvas:
     def __init__(self, canvas_url, api_key):
         self.canvas_url = canvas_url
         self.api_key = api_key
-        self.session = requests.Session() # this might help doing multiple requests after each other quicker, as they are done to the same server
  
     """
     Request data at endpoint given some parameters
@@ -22,7 +21,7 @@ class Canvas:
 
         api_key = self.api_key
         headers = {"Authorization": "Bearer {}".format(api_key)}
-        response = self.session.get(url, headers=headers, params=parameters)
+        response = requests.get(url, headers=headers, params=parameters)
         if not response.ok:
             return response.ok, response.text
         return response.ok, response.json()

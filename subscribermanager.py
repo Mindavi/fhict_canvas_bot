@@ -9,7 +9,33 @@ class SubscriberManager:
             lines = subscriber_file.readlines()
             for line in lines:
                 line = line.strip()
-                contains_comment = '#' in line
-                if not contains_comment and len(line) != 0: 
+                is_comment = '#' in line
+                if not is_comment and len(line) != 0 and line.lstrip('-').isdecimal():
                     subscribers.append(line)
             return subscribers
+
+
+    def add_subscriber(self, subscriber):
+        subscriber = str(subscriber)
+        current_subscribers = self.read_subscribers()
+        if subscriber in current_subscribers:
+            return False
+        current_subscribers.append(subscriber)
+        with open(self.file_name, 'w') as subscriber_file:
+            print("Current subscribers: {}".format(current_subscribers))
+            subscribers_to_write = list(map(lambda x: "{}\n".format(x), current_subscribers))
+            subscriber_file.writelines(subscribers_to_write)
+            return True
+        return False
+
+
+    def delete_subscriber(self, subscriber):
+        subscriber = str(subscriber)
+        current_subscribers = self.read_subscribers()
+        if subscriber not in current_subscribers:
+            return
+        current_subscribers.remove(subscriber)
+        with open(self.file_name, 'w') as subscriber_file:
+            subscribers_to_write = list(map(lambda x: "{}\n".format(x), current_subscribers))
+            subscriber_file.writelines(subscribers_to_write)
+

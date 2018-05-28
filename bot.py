@@ -28,6 +28,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     filemode='a')
 
 logger = logging.getLogger(__name__)
+logging.getLogger().addHandler(logging.StreamHandler())
 
 def read_canvas_api_key():
     with open('canvas-api-key.txt', 'r') as api_key_file:
@@ -90,7 +91,8 @@ def publish_if_new_announcements(bot, job):
     formatted_announcements = get_announcements_formatted(announcements)
     text_to_send = '\n'.join(formatted_announcements)
     for subscriber in subscribers:
-        bot.send_message(chat_id=int(subscriber), text=text_to_send)
+        chat_id = int(subscriber)
+        bot.send_message(chat_id=chat_id, text=text_to_send)
         logger.info('Publishing new info to user id: {}'.format(chat_id))
 
     job.context['last_retrieved'] = datetime.datetime.now(datetime.timezone.utc) 
@@ -127,7 +129,8 @@ def get(bot, update):
 
 
 def subscribe(bot, update, job_queue, chat_data):
-    if sub_manager.add_subscriber(update.message.chat_id):
+    chat_id = update.message.chat_id
+    if sub_manager.add_subscriber(chat_id):
         update.message.reply_text('You are now subscribed to new announcements!')
         logger.info('New subscriber: {}, user: {}, chat: {}'
                 .format(chat_id, update.message.from_user, update.message.chat))
@@ -136,9 +139,10 @@ def subscribe(bot, update, job_queue, chat_data):
 
 
 def unsubscribe(bot, update, chat_data):
-    if sub_manager.delete_subscriber(update.message.chat_id):
+    chat_id = update.message.chat_id
+    if sub_manager.delete_subscriber(chat_id):
         update.message.reply_text('Successfully unsubscribed.')
-        logger.info('Unsubscriber: {}'.format(update.message.chat_id))
+        logger.info('Unsubscriber: {}'.format(chat_id))
     else:
         update.message.reply_text('You were not subscribed, so unsubscribing isn\'t possible.')
 
@@ -158,7 +162,7 @@ def main():
     job_queue = updater.job_queue
     last_retrieved = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=10)
     job_queue.run_repeating(callback=publish_if_new_announcements,
-            interval=datatime.timedelta(minutes=5),
+            interval=datetime.timedelta(minutes=5),
             first=0,
             context={'last_retrieved': last_retrieved})
 

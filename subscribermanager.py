@@ -4,15 +4,18 @@ class SubscriberManager:
         self.file_name = file_name
 
     def read_subscribers(self):
-        with open(self.file_name, 'r') as subscriber_file:
-            subscribers = []
-            lines = subscriber_file.readlines()
-            for line in lines:
-                line = line.strip()
-                is_comment = '#' in line
-                if not is_comment and len(line) != 0 and line.lstrip('-').isdecimal():
-                    subscribers.append(line)
-            return subscribers
+        try:
+            with open(self.file_name, 'r') as subscriber_file:
+                subscribers = []
+                lines = subscriber_file.readlines()
+                for line in lines:
+                    line = line.strip()
+                    is_comment = '#' in line
+                    if not is_comment and len(line) != 0 and line.lstrip('-').isdecimal():
+                        subscribers.append(line)
+                return subscribers
+        except FileNotFoundError:
+            return []
 
 
     def add_subscriber(self, subscriber):

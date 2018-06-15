@@ -2,6 +2,8 @@
 
 This is a telegram bot which reads out Canvas LMS announcements to its subscribers.
 
+![Example of the bot behaviour](images/canvasbot-example.png)
+
 ## Usage
 
 To use it, retrieve a canvas api token on your profile page. From your Dashboard, go to Account -> Settings. On the bottom of the 'Approved integrations' list, you'll find a '+New access token' button. Click that button to generate an access token. Save it (or symlink it) in the same folder as the `bot.py` application, with the name `canvas-api-key.txt`.

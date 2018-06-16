@@ -56,5 +56,6 @@ class Canvas:
             for announcement in announcements:
                 post_time = parser.parse(announcement["posted_at"])
                 if (post_time > datetime):
+                    announcement["course_name"] = course["name"]
                     found_announcements.append(announcement)
         return ok, found_announcements
